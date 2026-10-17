@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Arduino build output
+build/
+*.bin
+*.elf
+
+# Python leftovers from the host-side scaffolding that used to live here
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Decompiled app output — large, and not ours to redistribute.
+# Findings go into docs/, not the tree.
+*.apk
+*.aab
