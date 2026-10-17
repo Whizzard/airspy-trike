@@ -197,9 +197,12 @@ static void paintRowFrame(int yOff, bool held) {
   uint16_t fr = held ? C_CYAN : C_WHITE;
   for (int k = 0; k < 3; k++)
     tileBuf->drawRect(k, yOff + k, SCR_W - 2 * k, ROW_H - 2 * k, fr);
+  // Beside the serial, not beside the reading: the pressure and temperature
+  // line runs 105 of the panel's 135 pixels, so arrows on its row sat on top
+  // of the digits. The serial is 90 wide and leaves room either side.
   if (held) {                           // over the buttons that move it
-    drawSymOn(*tileBuf, 13, yOff + ROW_H / 2, 6, SY_UP);
-    drawSymOn(*tileBuf, SCR_W - 13, yOff + ROW_H / 2, 6, SY_DOWN);
+    drawSymOn(*tileBuf, 11, yOff + 16, 6, SY_UP);
+    drawSymOn(*tileBuf, SCR_W - 11, yOff + 16, 6, SY_DOWN);
   }
 }
 

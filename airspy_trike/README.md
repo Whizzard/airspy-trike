@@ -22,6 +22,9 @@ no longer side by side.
 
 ## Controls
 
+[`../docs/40-manual.md`](../docs/40-manual.md) shows every screen; this is the
+summary.
+
 One grammar, everywhere:
 
 | | |

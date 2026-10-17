@@ -26,6 +26,7 @@ failure and the hardest to notice.
 - [`docs/20-protocol.md`](docs/20-protocol.md) — **the deliverable**: advertisement
   layout, GATT tree, the 30-byte message, the units, and why the pressure float is the
   sensor chip's own 9-bit code rescaled.
+- [`docs/40-manual.md`](docs/40-manual.md) — **how to use it**, every screen pictured.
 - [`docs/00-project.md`](docs/00-project.md) — goals, vehicle context, requirements.
 - [`docs/10-recon.md`](docs/10-recon.md) — what was tried and what was seen, including
   the dead ends.
@@ -42,9 +43,10 @@ failure and the hardest to notice.
         --fqbn esp32:esp32:lilygo_t_display:UploadSpeed=115200 airspy_trike
 
 Hold **A** while it starts and it runs on three invented sensors, so the whole thing
-can be driven without the vehicle anywhere near. See
-[`airspy_trike/README.md`](airspy_trike/README.md) for the layout, the controls and
-what each file holds.
+can be driven without the vehicle anywhere near.
+[`docs/40-manual.md`](docs/40-manual.md) shows every screen and what the buttons do;
+[`airspy_trike/README.md`](airspy_trike/README.md) covers the layout and what each
+file holds.
 
 To confirm the protocol against your own sensor, `docs/20-protocol.md` §3.6 is the
 whole recipe: scan actively for `AIRSPY-<serial>`, connect, subscribe to `0xFFF4`, and
