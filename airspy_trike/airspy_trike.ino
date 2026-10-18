@@ -169,7 +169,13 @@ static const NimBLEUUID CHR_UUID((uint16_t)0xFFF4);
 #define LIGHT_MS    60000UL   // and a press keeps the panel lit for this long
 #define THR_MIN     1.0f      // the settable range of a threshold
 #define THR_MAX     8.0f
-#define BATT_WARN  20.0f      // below this the battery bar goes red and full width
+// Our own threshold, because the sensor's is not reachable. The FXTH87 inside
+// does raise an undervoltage flag, but on the SPI bus between it and the nRF
+// (docs/20-protocol.md 1.1) -- over the radio only the percentage comes out, in
+// the 0x1E record and in the SIG Battery Level characteristic. Twenty is a guess
+// informed by one measurement: a sensor held in a connection fell from 100 % to
+// 38 % in a day, so the last fifth is not a lot of riding.
+#define BATT_WARN  20.0f      // below this the bar's remainder fills red
 
 // --- slots --------------------------------------------------------------- //
 enum Pos { VL = 0, VR = 1, HR = 2, NPOS = 3 };
@@ -330,7 +336,7 @@ static ScanCB scanCB;
 // redefined the real 170x320 to 135x240 for every file that follows.
 Arduino_Canvas *tileBuf = new Arduino_Canvas(TILE_W, TILE_H, nullptr);
 
-struct TileState { char txt[12]; bool alarm, blink, mark, leak, help; uint8_t batt, what; };
+struct TileState { char txt[12]; bool alarm, mark, leak, help; uint8_t batt, what; };
 TileState prevTile[NPOS];
 bool prevValid[NPOS] = { false, false, false };
 

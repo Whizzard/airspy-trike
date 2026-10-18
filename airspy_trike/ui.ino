@@ -148,12 +148,10 @@ static void drawTile(int pos, int x, int y) {
   Link& s = at(pos);
   bool alarm = posAlarm(pos);
   bool live0 = s.haveData && (millis() - s.lastRx < STALE_MS);
-  bool phase = (millis() / 500) % 2 == 0;
-  // While peeking at temperature or battery the pressure alarm stops flashing --
-  // a blinking background behind an unrelated number just looks broken. The one
-  // battery now says everything it needs to through the length and colour of its
-  // bar, so nothing else flashes.
-  bool blink = phase && alarm && shown == S_BAR;
+  // A red number, and it stays red. The alarm used to invert the tile twice a
+  // second, which is louder than the situation: the pressure is below the limit
+  // and will be until somebody pumps it, so there is no moment to catch. It also
+  // meant repainting the tile at 2 Hz for the flash alone.
   bool mark  = false;
 #if HAS_TOUCH
   mark = (pos == selTile);                    // held for a swap
@@ -176,17 +174,17 @@ static void drawTile(int pos, int x, int y) {
 
   // Nothing changed -> leave the panel alone. This is what removes the flicker.
   if (prevValid[pos] && !strcmp(prevTile[pos].txt, txt) && prevTile[pos].alarm == alarm
-      && prevTile[pos].blink == blink && prevTile[pos].mark == mark
+      && prevTile[pos].mark == mark
       && prevTile[pos].batt == battPct && prevTile[pos].what == (uint8_t)shown
       && prevTile[pos].leak == leak && prevTile[pos].help == help) return;
   strcpy(prevTile[pos].txt, txt);
-  prevTile[pos].alarm = alarm; prevTile[pos].blink = blink;
+  prevTile[pos].alarm = alarm;
   prevTile[pos].mark = mark;   prevTile[pos].batt = battPct;
   prevTile[pos].leak = leak;   prevTile[pos].help = help;
   prevTile[pos].what = (uint8_t)shown;
   prevValid[pos] = true;
 
-  uint16_t bg = blink ? C_RED : C_BLACK;
+  uint16_t bg = C_BLACK;
   uint16_t fg;
   switch (shown) {
     case S_BATT: fg = battLow ? C_RED : C_GREEN; break;
@@ -198,8 +196,11 @@ static void drawTile(int pos, int x, int y) {
     default:     fg = alarm ? C_RED : leak ? C_YELLOW : C_WHITE;
   }
   if (asSerial) fg = C_CYAN;          // a serial standing in is not a reading
-  if (blink) fg = C_BLACK;
-  if (!live) fg = C_DIM;
+  // A dash is not a faded reading, it is the device saying it has nothing --
+  // after a reset, or when a sensor has gone quiet mid-ride. White, because
+  // that is information. A serial standing in for a missing value stays dim:
+  // there the dimness is the point, since the number itself is stale.
+  if (!live) fg = asSerial ? C_DIM : C_WHITE;
   // Which tiles just moved. A frame was the obvious choice and the wrong one: at
   // the screen edge it gets clipped and looks like a drawing fault. A tinted
   // panel cannot be clipped and reads at a glance.
@@ -207,22 +208,23 @@ static void drawTile(int pos, int x, int y) {
 
   tileBuf->fillScreen(bg);
 
-  // Battery as a line under the reading, green and as long as the charge is
-  // high. Below the warning level it goes full width in red instead: drawn to
-  // length it would be the one bar you cannot see, exactly when it matters.
+  // Battery as a line under the reading: green, and as long as the charge is
+  // high. Below the warning level the rest of the track fills red beside it,
+  // rather than the whole bar turning red. Length then still carries the state
+  // and colour carries the judgement -- a bar that is entirely red says only
+  // "bad" and throws away the one thing you want next, which is how bad.
   if (battPct != 255) {
     const int margin = 10, avail = TILE_W - 2 * margin;
-    int w = battLow ? avail : (avail * battPct) / 100;
+    int w = (avail * battPct) / 100;
     if (w < 2) w = 2;
-    tileBuf->fillRect(margin, TILE_H - 10, w, 5,
-                      blink ? C_BLACK : (battLow ? C_RED : C_GREEN));
+    tileBuf->fillRect(margin, TILE_H - 10, w, 5, C_GREEN);
+    if (battLow) tileBuf->fillRect(margin + w, TILE_H - 10, avail - w, 5, C_RED);
   }
 
   // Stacked vertically, nothing says which front wheel is which any more. A mark
   // on the outer edge restores it: left wheel marked left, right wheel right.
   if (pos == VL || pos == VR) {
-    uint16_t mc = blink ? C_BLACK : C_GREY;
-    tileBuf->fillRect(pos == VL ? 0 : TILE_W - 7, (TILE_H - 56) / 2, 7, 56, mc);
+    tileBuf->fillRect(pos == VL ? 0 : TILE_W - 7, (TILE_H - 56) / 2, 7, 56, C_WHITE);
   }
 
   if (txt[0]) {
@@ -298,7 +300,7 @@ static void drawShow() {
 // vertically, nothing else distinguishes them.
 static void paintMark(int pos) {
   if (pos == VL || pos == VR)
-    tileBuf->fillRect(pos == VL ? 0 : TILE_W - 7, (TILE_H - 56) / 2, 7, 56, C_GREY);
+    tileBuf->fillRect(pos == VL ? 0 : TILE_W - 7, (TILE_H - 56) / 2, 7, 56, C_WHITE);
 }
 // A wheel's reading, displaced vertically. The tile buffer clips, so this is
 // all an animation needs to slide one reading past another.

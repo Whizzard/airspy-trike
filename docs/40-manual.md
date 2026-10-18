@@ -39,14 +39,14 @@ Those symbols mean the same thing wherever they appear:
 ## The readings
 
 Three wheels, stacked the way the vehicle looks from above: front left on top, front
-right in the middle, rear at the bottom. The two front tiles carry a grey mark on
+right in the middle, rear at the bottom. The two front tiles carry a white mark on
 their **outer** edge — that is what tells them apart once they are no longer side by
 side. Under each reading, a bar for that sensor's battery.
 
-| | | | |
-|---|---|---|---|
-| <img src="screens/readings-pressure.png" width="120"> | <img src="screens/readings-alarm.png" width="120"> | <img src="screens/readings-leak.png" width="120"> | <img src="screens/readings-offline.png" width="120"> |
-| Everything above its threshold. | Below the threshold: the tile inverts and flashes red until the tyre is seen to. | Amber: a slow puncture. Not below the threshold yet, but losing air faster than the weather explains. | A dash, and the battery bar gone: that sensor has said nothing for ten seconds. A silent sensor is never shown as "fine". |
+| | | | | |
+|---|---|---|---|---|
+| <img src="screens/readings-waiting.png" width="110"> | <img src="screens/readings-pressure.png" width="110"> | <img src="screens/readings-alarm.png" width="110"> | <img src="screens/readings-leak.png" width="110"> | <img src="screens/readings-offline.png" width="110"> |
+| After a reset: three dashes until the sensors answer, which takes fifteen to twenty seconds. | Everything above its threshold. | Red, and it stays red: below the threshold until somebody pumps. Nothing flashes — there is no moment to catch. | Amber: a slow puncture. Not below the threshold yet, but losing air faster than the weather explains. | One sensor has said nothing for ten seconds. Its battery bar goes with it. A silent sensor is never shown as "fine". |
 
 **B** pages through the other things a sensor knows; **A** goes back to the pressure.
 Nothing times out quickly — a page stays for three minutes.
@@ -54,7 +54,13 @@ Nothing times out quickly — a page stays for three minutes.
 | | | |
 |---|---|---|
 | <img src="screens/readings-temperature.png" width="120"> | <img src="screens/readings-battery.png" width="120"> | <img src="screens/readings-serial.png" width="120"> |
-| Tyre temperature, in orange. A wheel in the sun reads several degrees above one in the shade. | Battery per sensor. Below 20 % the bar goes full width and red, because a bar drawn to length is the one you cannot see exactly when it matters. | The engraved serial, in cyan — the number on the sensor body, for matching a reading to a valve. |
+| Tyre temperature, in orange. A wheel in the sun reads several degrees above one in the shade. | Battery per sensor. The green bar is drawn to the charge; below 20 % the rest of the track fills red beside it, so the length still says *how* low. | The engraved serial, in cyan — the number on the sensor body, for matching a reading to a valve. |
+
+Twenty per cent is this device's own threshold, not the sensor's. The FXTH87 chip
+inside does raise an undervoltage flag, but on the SPI bus between it and the radio
+([§1.1](20-protocol.md)) — over the air only the percentage comes out. It is a figure
+informed by one measurement: a sensor held in a connection fell from 100 % to 38 % in
+a day, so the last fifth is not a lot of riding.
 
 The panel goes dark after a minute without a press and comes back on either button,
 with that press spent doing so. An alarm or a slow puncture lights it by itself and

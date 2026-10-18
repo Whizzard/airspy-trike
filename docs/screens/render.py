@@ -362,9 +362,8 @@ def value_unit(buf, val, unit, col):
         CLASSIC.draw(buf, unit, x + vw + gap, y + vh - uh, 2, col)
 
 
-def tile(cv, pos, s, shown, thr, hint=False, phase=True):
+def tile(cv, pos, s, shown, thr, hint=False):
     alarm = s.live and s.bar < thr
-    blink = phase and alarm and shown == "bar"
     leak = s.live and s.leaking
     txt, unit, as_serial = tile_text(s, shown)
 
@@ -383,20 +382,18 @@ def tile(cv, pos, s, shown, thr, hint=False, phase=True):
         fg = C_RED if alarm else (C_YELLOW if leak else C_WHITE)
     if as_serial:
         fg = C_CYAN
-    if blink:
-        fg = C_BLACK
     if not s.live:
-        fg = C_DIM
+        fg = C_DIM if as_serial else C_WHITE
 
-    buf = Canvas(TILE_W, TILE_H, C_RED if blink else C_BLACK)
+    buf = Canvas(TILE_W, TILE_H, C_BLACK)
     if batt_pct != 255:
         avail = TILE_W - 20
-        w = max(2, avail if batt_low else cdiv(avail * batt_pct, 100))
-        buf.fill_rect(10, TILE_H - 10, w, 5,
-                      C_BLACK if blink else (C_RED if batt_low else C_GREEN))
+        w = max(2, cdiv(avail * batt_pct, 100))
+        buf.fill_rect(10, TILE_H - 10, w, 5, C_GREEN)
+        if batt_low:
+            buf.fill_rect(10 + w, TILE_H - 10, avail - w, 5, C_RED)
     if pos in (VL, VR):
-        buf.fill_rect(0 if pos == VL else TILE_W - 7, cdiv(TILE_H - 56, 2), 7, 56,
-                      C_BLACK if blink else C_GREY)
+        buf.fill_rect(0 if pos == VL else TILE_W - 7, cdiv(TILE_H - 56, 2), 7, 56, C_WHITE)
     if txt:
         if as_serial:
             buf.centred(txt, 0, 0, TILE_W, TILE_H, None, 4, fg)
@@ -407,10 +404,10 @@ def tile(cv, pos, s, shown, thr, hint=False, phase=True):
     cv.blit(buf, 0, TILE_Y[pos])
 
 
-def readings(sensors, shown, thr, hint=False, phase=True):
+def readings(sensors, shown, thr, hint=False):
     cv = Canvas(SCR_W, SCR_H)
     for p in range(NPOS):
-        tile(cv, p, sensors[p], shown, thr[p], hint and p == NPOS - 1, phase)
+        tile(cv, p, sensors[p], shown, thr[p], hint and p == NPOS - 1)
     return cv
 
 
@@ -529,6 +526,7 @@ def main():
     low = [ok[0], ok[1], Sensor("AIRSPY-14203", 4.62, 24, 14)]
     leaky = [ok[0], ok[1], Sensor("AIRSPY-14203", 5.12, 24, 14, leaking=True)]
     gone = [ok[0], Sensor("AIRSPY-25680", 0, 0, None, live=False), ok[2]]
+    waiting = [Sensor(s.serial, 0, 0, None, live=False) for s in ok]
     thr = (6.0, 6.0, 5.0)
 
     made = [
@@ -536,6 +534,7 @@ def main():
         readings(low, "bar", thr).save("readings-alarm.png"),
         readings(leaky, "bar", thr).save("readings-leak.png"),
         readings(gone, "bar", thr).save("readings-offline.png"),
+        readings(waiting, "bar", thr).save("readings-waiting.png"),
         readings(ok, "temp", thr).save("readings-temperature.png"),
         readings(ok, "batt", thr).save("readings-battery.png"),
         readings(ok, "serial", thr).save("readings-serial.png"),
