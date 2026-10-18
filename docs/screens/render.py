@@ -364,7 +364,6 @@ def value_unit(buf, val, unit, col):
 
 def tile(cv, pos, s, shown, thr, hint=False):
     alarm = s.live and s.bar < thr
-    inverted = alarm and shown == "bar"
     leak = s.live and s.leaking
     txt, unit, as_serial = tile_text(s, shown)
 
@@ -383,24 +382,18 @@ def tile(cv, pos, s, shown, thr, hint=False):
         fg = C_RED if alarm else (C_YELLOW if leak else C_WHITE)
     if as_serial:
         fg = C_CYAN
-    if inverted:
-        fg = C_BLACK
     if not s.live:
         fg = C_DIM if as_serial else C_WHITE
 
-    buf = Canvas(TILE_W, TILE_H, C_RED if inverted else C_BLACK)
+    buf = Canvas(TILE_W, TILE_H, C_BLACK)
     if batt_pct != 255:
         avail = TILE_W - 20
         w = max(2, cdiv(avail * batt_pct, 100))
-        if inverted:
-            buf.fill_rect(10, TILE_H - 10, w, 5, C_BLACK)
-        else:
-            buf.fill_rect(10, TILE_H - 10, w, 5, C_GREEN)
-            if batt_low:
-                buf.fill_rect(10 + w, TILE_H - 10, avail - w, 5, C_RED)
+        buf.fill_rect(10, TILE_H - 10, w, 5, C_GREEN)
+        if batt_low:
+            buf.fill_rect(10 + w, TILE_H - 10, avail - w, 5, C_RED)
     if pos in (VL, VR):
-        buf.fill_rect(0 if pos == VL else TILE_W - 7, cdiv(TILE_H - 56, 2), 7, 56,
-                      C_BLACK if inverted else C_WHITE)
+        buf.fill_rect(0 if pos == VL else TILE_W - 7, cdiv(TILE_H - 56, 2), 7, 56, C_WHITE)
     if txt:
         if as_serial:
             buf.centred(txt, 0, 0, TILE_W, TILE_H, None, 4, fg)

@@ -191,6 +191,13 @@ with its temperature compensation are all exercised as they would be on the
 vehicle. Pressures even land on the 1.671 kPa lattice the real sensor quantises
 to, because code that only ever sees smooth numbers has not met the real thing.
 
-One wheel loses about 0.15 bar a minute, so the slow-puncture state appears
-after roughly two — long enough to watch happen, short enough to sit through.
-One battery starts low enough to show its warning bar straight away.
+Then faults arrive on their own, every minute or so on a random wheel: a slow
+puncture at 0.15 bar a minute, a faster loss that falls through the alarm
+threshold, or a cell going flat. Each sits at the bottom for half a minute and
+is then pumped back up or replaced, which is how the real device clears those
+warnings too.
+
+Nothing written in demo mode reaches the flash. It begins by forgetting the
+assignment, which is the point — but that must not cost the vehicle the one it
+was carrying, so `savePositions()` and `saveThresholds()` return early while it
+runs, and the demo's thresholds are its own.

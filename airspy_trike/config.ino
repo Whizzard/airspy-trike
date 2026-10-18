@@ -6,7 +6,13 @@
 // --- persistence --------------------------------------------------------- //
 // Stored per wheel, not per link: the mapping is the thing worth keeping.
 // Serial and address are both stored per wheel, so a rotation carries them both.
+//
+// Nothing written while the demo is running. It begins by forgetting everything
+// -- which is the point, it starts where a new device starts -- and that would
+// otherwise cost the vehicle the assignment it was actually carrying, for the
+// sake of a session spent on the bench.
 static void savePositions() {
+  if (fakeMode) return;
   prefs.begin("airspy", false);
   for (int p = 0; p < NPOS; p++) {
     Link& l = at(p);
@@ -18,7 +24,9 @@ static void savePositions() {
   prefs.end();
 }
 
+// Same for the thresholds: the demo keeps its own, and they go when it does.
 static void saveThresholds() {
+  if (fakeMode) return;
   prefs.begin("airspy", false);
   prefs.putFloat("thrF", thrFront); prefs.putFloat("thrR", thrRear);
   prefs.end();

@@ -148,14 +148,10 @@ static void drawTile(int pos, int x, int y) {
   Link& s = at(pos);
   bool alarm = posAlarm(pos);
   bool live0 = s.haveData && (millis() - s.lastRx < STALE_MS);
-  // Below the threshold the whole tile goes red, and stays red. It used to do
-  // that twice a second; the flashing is gone, because the pressure is below the
-  // limit and will be until somebody pumps it -- there is no moment to catch,
-  // and repainting at 2 Hz bought nothing but the blink.
-  //
-  // Only on the pressure page. A red field behind a temperature reads as a
-  // temperature alarm, which is not what it means.
-  bool inverted = alarm && shown == S_BAR;
+  // A red number, and it stays red. The alarm used to invert the tile twice a
+  // second, which is louder than the situation: the pressure is below the limit
+  // and will be until somebody pumps it, so there is no moment to catch. It also
+  // meant repainting the tile at 2 Hz for the flash alone.
   bool mark  = false;
 #if HAS_TOUCH
   mark = (pos == selTile);                    // held for a swap
@@ -188,7 +184,7 @@ static void drawTile(int pos, int x, int y) {
   prevTile[pos].what = (uint8_t)shown;
   prevValid[pos] = true;
 
-  uint16_t bg = inverted ? C_RED : C_BLACK;
+  uint16_t bg = C_BLACK;
   uint16_t fg;
   switch (shown) {
     case S_BATT: fg = battLow ? C_RED : C_GREEN; break;
@@ -200,7 +196,6 @@ static void drawTile(int pos, int x, int y) {
     default:     fg = alarm ? C_RED : leak ? C_YELLOW : C_WHITE;
   }
   if (asSerial) fg = C_CYAN;          // a serial standing in is not a reading
-  if (inverted) fg = C_BLACK;
   // A dash is not a faded reading, it is the device saying it has nothing --
   // after a reset, or when a sensor has gone quiet mid-ride. White, because
   // that is information. A serial standing in for a missing value stays dim:
@@ -222,22 +217,14 @@ static void drawTile(int pos, int x, int y) {
     const int margin = 10, avail = TILE_W - 2 * margin;
     int w = (avail * battPct) / 100;
     if (w < 2) w = 2;
-    if (inverted) {
-      // On the red field the bar is black and keeps only its length: a red
-      // remainder would be invisible, and green beside it would be a second
-      // opinion on a tile that is already saying one thing loudly.
-      tileBuf->fillRect(margin, TILE_H - 10, w, 5, C_BLACK);
-    } else {
-      tileBuf->fillRect(margin, TILE_H - 10, w, 5, C_GREEN);
-      if (battLow) tileBuf->fillRect(margin + w, TILE_H - 10, avail - w, 5, C_RED);
-    }
+    tileBuf->fillRect(margin, TILE_H - 10, w, 5, C_GREEN);
+    if (battLow) tileBuf->fillRect(margin + w, TILE_H - 10, avail - w, 5, C_RED);
   }
 
   // Stacked vertically, nothing says which front wheel is which any more. A mark
   // on the outer edge restores it: left wheel marked left, right wheel right.
   if (pos == VL || pos == VR) {
-    tileBuf->fillRect(pos == VL ? 0 : TILE_W - 7, (TILE_H - 56) / 2, 7, 56,
-                      inverted ? C_BLACK : C_WHITE);
+    tileBuf->fillRect(pos == VL ? 0 : TILE_W - 7, (TILE_H - 56) / 2, 7, 56, C_WHITE);
   }
 
   if (txt[0]) {

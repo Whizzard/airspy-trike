@@ -46,7 +46,7 @@ side. Under each reading, a bar for that sensor's battery.
 | | | | | |
 |---|---|---|---|---|
 | <img src="screens/readings-waiting.png" width="110"> | <img src="screens/readings-pressure.png" width="110"> | <img src="screens/readings-alarm.png" width="110"> | <img src="screens/readings-leak.png" width="110"> | <img src="screens/readings-offline.png" width="110"> |
-| After a reset: three dashes until the sensors answer, which takes fifteen to twenty seconds. | Everything above its threshold. | The whole tile goes red and stays red: below the threshold until somebody pumps. It does not flash — there is no moment to catch, and only the pressure page inverts, since a red field behind a temperature would read as a temperature alarm. | Amber: a slow puncture. Not below the threshold yet, but losing air faster than the weather explains. | One sensor has said nothing for ten seconds. Its battery bar goes with it. A silent sensor is never shown as "fine". |
+| After a reset: three dashes until the sensors answer, which takes fifteen to twenty seconds. | Everything above its threshold. | Red, and it stays red: below the threshold until somebody pumps. Nothing flashes — there is no moment to catch. | Amber: a slow puncture. Not below the threshold yet, but losing air faster than the weather explains. | One sensor has said nothing for ten seconds. Its battery bar goes with it. A silent sensor is never shown as "fine". |
 
 **B** pages through the other things a sensor knows; **A** goes back to the pressure.
 Nothing times out quickly — a page stays for three minutes.
@@ -132,9 +132,19 @@ The corners decide it: clipping loses two, a bezel all four.
 
 After that it runs on three invented sensors with realistic, quantised readings, from
 an empty assignment — the learn window opens and the sensors turn up a second and a
-half apart. One wheel loses about 0.15 bar a minute, so the slow-puncture warning
-appears after roughly two. One battery starts low enough to show its warning at once.
+half apart.
+
+Then things start going wrong by themselves. Every minute or so, on a wheel picked at
+random: a slow puncture at 0.15 bar a minute, which raises the amber warning after
+about two; a faster loss that falls through the alarm threshold; or a cell going flat
+in about a minute. Each sits at the bottom for half a minute and is then put right —
+pumped back up, or replaced — which is also how the real device clears those warnings.
+So leaving it running exercises every state the panel has.
 
 Nothing is injected into the display: the readings are assembled into the same
 notifications a real AIRSPY sends, so the averaging, the alarm hysteresis and the leak
 reference are all exercised the way they would be on the road.
+
+**Nothing from the demo reaches the flash.** It starts by forgetting the assignment,
+because that is where a new device starts — and it keeps its own thresholds. The
+vehicle's real assignment and settings are still there after a reset.

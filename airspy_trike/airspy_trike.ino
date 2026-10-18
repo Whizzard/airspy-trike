@@ -139,6 +139,15 @@ enum Sym  { SY_NONE, SY_BACK, SY_ENTER, SY_OK, SY_NO, SY_UP, SY_DOWN,
 enum Icon { IC_ASSIGN, IC_LEARN, IC_THR_F, IC_THR_R };
 enum Shown { S_BAR, S_BATT, S_TEMP, S_SERIAL };       // what the tiles show
 
+// Only demo.ino uses this, but it is named in a signature, so it has to stand
+// above the generated prototypes like everything else here. One thing going
+// wrong and coming right again: the value walks to `tgt` at `rate` a second,
+// waits, then returns home at `back` -- or in one step when `back` is zero.
+struct Ramp {
+  float    v = 0, tgt = 0, rate = 0, back = 0, home = 0;
+  uint32_t hold = 0;
+};
+
 // --- protocol ------------------------------------------------------------ //
 #define TAG_PRESSURE 0x2E
 #define TAG_TEMP     0x22
