@@ -46,7 +46,7 @@ side. Under each reading, a bar for that sensor's battery.
 | | | | | |
 |---|---|---|---|---|
 | <img src="screens/readings-waiting.png" width="110"> | <img src="screens/readings-pressure.png" width="110"> | <img src="screens/readings-alarm.png" width="110"> | <img src="screens/readings-leak.png" width="110"> | <img src="screens/readings-offline.png" width="110"> |
-| After a reset: three dashes until the sensors answer, which takes fifteen to twenty seconds. | Everything above its threshold. | Red, and it stays red: below the threshold until somebody pumps. Nothing flashes — there is no moment to catch. | Amber: a slow puncture. Not below the threshold yet, but losing air faster than the weather explains. | One sensor has said nothing for ten seconds. Its battery bar goes with it. A silent sensor is never shown as "fine". |
+| After a reset: three dashes until the sensors answer, which takes fifteen to twenty seconds. | Everything above its threshold. | The whole tile goes red and stays red: below the threshold until somebody pumps. It does not flash — there is no moment to catch, and only the pressure page inverts, since a red field behind a temperature would read as a temperature alarm. | Amber: a slow puncture. Not below the threshold yet, but losing air faster than the weather explains. | One sensor has said nothing for ten seconds. Its battery bar goes with it. A silent sensor is never shown as "fine". |
 
 **B** pages through the other things a sensor knows; **A** goes back to the pressure.
 Nothing times out quickly — a page stays for three minutes.
